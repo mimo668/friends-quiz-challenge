@@ -77,8 +77,8 @@
         
         .share-box {
             background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;
-            margin: 10px 0; word-break: break-all; border: 1px dashed var(--primary);
-            font-size: 14px; color: #00cea8; direction: ltr; text-align: center;
+            margin: 20px 0; word-break: break-all; border: 1px dashed var(--primary);
+            font-size: 16px; color: #00cea8; direction: ltr; text-align: center;
             font-weight: bold;
         }
         
@@ -89,33 +89,32 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1); border-radius: 50%;
+            border-top: 4px solid var(--primary); width: 30px; height: 30px;
+            animation: spin 1s linear infinite; margin: 15px auto; display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="startScreen" class="screen active">
-            <h1 id="mainTitle">🤔 تحدي اختبار الأصدقاء المخصص الحقيقي!</h1>
-            <p id="mainDesc">اكتب أسئلتك وصوالحك كاملة بنفسك وبأي طول! الرابط الآن يخرج قصير جداً ممسوح ونظيف 100%.</p>
+            <h1>🤔 تحدي اختبار الأصدقاء المخصص!</h1>
+            <p id="mainDesc">اكتب أسئلتك وصوالحك بنفسك واكتشف من من أصدقائك يستطيع الإجابة عليها! (الرابط يخرج قصير جداً وتلقائياً عبر السيرفر)</p>
             <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا...">
             <button class="btn" onclick="startSetup()">ابدأ كتابة أسئلتك الخاصة 🚀</button>
-        </div>
-
-        <div id="importScreen" class="screen">
-            <h2 style="color: var(--warning);">🔑 خطوة واحدة لبدء التحدي!</h2>
-            <p>صديقك أرسل لك رابطاً قصيراً نظيفاً، يرجى لصق "شفرة الأسئلة" التي أرسلها معك في ماسنجر لبدء الاختبار فوراً:</p>
-            <input type="text" id="quizCodeInput" placeholder="أدخل أو الصق الشفرة هنا...">
-            <button class="btn" onclick="importQuizCode()">تحميل الأسئلة المخصصة وبدء التحدي 🎮</button>
         </div>
 
         <div id="creatorScreen" class="screen">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="color: var(--secondary); margin: 0;" id="creatorTitle">السؤال رقم 1</h3>
-                <span id="creatorCount" style="background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 12px;">0 / 15</span>
+                <span id="creatorCount" style="background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 12px;">0 / 10</span>
             </div>
             <p style="font-size: 13px; color: #8a8da4; margin: 5px 0 15px 0;">اكتب السؤال والخيارات، وحدد الدائرة أمام الجواب الصحيح الحقيقي عنك!</p>
             
-            <input type="text" id="customQuestion" placeholder="مثال: ما هو الشيء المفضل عندي في وقت فراغي؟">
+            <input type="text" id="customQuestion" placeholder="مثال: ما هو الأنمي المفضّل عندي؟">
             
             <div style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 14px; color: var(--secondary);">الخيارات المتعددة:</div>
             <div class="creator-option-row">
@@ -136,7 +135,7 @@
             </div>
 
             <button class="btn" onclick="saveCustomQuestion()">حفظ والانتقال للسؤال التالي ➡️</button>
-            <button class="btn btn-secondary" onclick="finishCreating()">إنهاء وصنع التحدي القصير 🏁</button>
+            <button class="btn btn-secondary" onclick="finishCreating()">إنهاء وصنع الرابط القصير 🏁</button>
         </div>
 
         <div id="quizScreen" class="screen">
@@ -148,15 +147,10 @@
 
         <div id="shareScreen" class="screen">
             <h1>🎉 تم إنشاء تحديك المخصص بنجاح!</h1>
-            <p>الرابط الآن خرج **قصير جداً ونظيف ومستحيل يطوال**! انسخه وأرسله مع "شفرة الأسئلة" المرافقة له لأصحابك الحين:</p>
-            
-            <div style="text-align: right; font-weight: bold; font-size: 13px; color: var(--secondary);">1️⃣ رابط السيت القصير:</div>
-            <div class="share-box" id="linkDisplay">جاري التوليد...</div>
-            <button class="btn" style="margin-top:0; margin-bottom:15px; background: #333652;" onclick="copyLink()">نسخ الرابط القصير 📋</button>
-
-            <div style="text-align: right; font-weight: bold; font-size: 13px; color: var(--warning);">2️⃣ شفرة الأسئلة المرافقة (انسخها وأرسلها مع الرابط):</div>
-            <div class="share-box" id="codeDisplay" style="color: var(--warning); font-size: 12px; max-height: 60px; overflow-y: auto;">جاري التوليد...</div>
-            <button class="btn" style="margin-top:0; background: var(--success);" onclick="copyCode()">نسخ شفرة الأسئلة 🔑</button>
+            <p>تم تقصير الرابط آلياً عبر سيرفر غير محظور ليصبح خفيفاً ومثالياً للمشاركة الديريكت في ماسنجر:</p>
+            <div class="loader" id="urlLoader"></div>
+            <div class="share-box" id="linkDisplay">جاري الاتصال بالسيرفر الآمن وتقصير الرابط...</div>
+            <button class="btn" id="copyBtn" onclick="copyLink()" disabled>انتظر تحميل الرابط... 📋</button>
         </div>
 
         <div id="resultScreen" class="screen">
@@ -174,7 +168,6 @@
         let friendAnswers = [];
         let creatorName = "";
         let isFriendMode = false;
-        let globalShortCode = "";
 
         function compressData(obj) {
             let str = JSON.stringify(obj);
@@ -188,8 +181,19 @@
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('quiz') && urlParams.get('quiz') === 'custom') {
-            isFriendMode = true;
+        if (urlParams.has('name') && urlParams.has('d')) {
+            try {
+                isFriendMode = true;
+                creatorName = urlParams.get('name');
+                customQuestionsList = decompressData(urlParams.get('d'));
+
+                document.getElementById("mainTitle").innerText = `تحدي الصديق: ${creatorName}`;
+                document.getElementById("mainDesc").innerText = `أنت الآن في اختبار مخصص كتبه [ ${creatorName} ] بنفسه عن صوالحه. أجب واكتشف رتبتك!`;
+                document.getElementById("usernameInput").placeholder = "اكتب اسمك أنت أولاً...";
+            } catch (e) {
+                alert("حدث خطأ في قراءة الرابط، تأكد من نسخه كاملاً!");
+                window.location.href = window.location.pathname;
+            }
         }
 
         function startSetup() {
@@ -205,32 +209,14 @@
                 document.getElementById("creatorScreen").classList.add("active");
                 updateCreatorUI();
             } else {
-                document.getElementById("importScreen").classList.add("active");
-            }
-        }
-
-        function importQuizCode() {
-            let code = document.getElementById("quizCodeInput").value.trim();
-            if(!code) {
-                alert("الرجاء لصق شفرة الأسئلة المرافقة أولاً!");
-                return;
-            }
-            try {
-                let decrypted = decompressData(code);
-                creatorName = decrypted.name;
-                customQuestionsList = decrypted.questions;
-
-                document.getElementById("importScreen").classList.remove("active");
                 document.getElementById("quizScreen").classList.add("active");
                 showFriendQuestion();
-            } catch(e) {
-                alert("الشفرة خاطئة أو غير كاملة، تأكد من نسخها كاملة من صديقك!");
             }
         }
 
         function updateCreatorUI() {
             document.getElementById("creatorTitle").innerText = `صناعة السؤال رقم (${customQuestionsList.length + 1})`;
-            document.getElementById("creatorCount").innerText = `${customQuestionsList.length} / 15`;
+            document.getElementById("creatorCount").innerText = `${customQuestionsList.length} / 10`;
             document.getElementById("customQuestion").value = "";
             document.getElementById("opt0").value = "";
             document.getElementById("opt1").value = "";
@@ -254,8 +240,8 @@
 
             customQuestionsList.push({ q: qText, o: [o0, o1, o2, o3], a: correct });
 
-            if (customQuestionsList.length >= 15) { 
-                alert("ممتاز! لقد قمت بصناعة 15 سؤالاً كاملاً.");
+            if (customQuestionsList.length >= 10) { 
+                alert("ممتاز جداً! لقد قمت بصناعة 10 أسئلة مخصصة كاملة.");
                 finishCreating();
             } else { updateCreatorUI(); }
         }
@@ -268,16 +254,33 @@
 
             document.getElementById("creatorScreen").classList.remove("active");
             document.getElementById("shareScreen").classList.add("active");
+            document.getElementById("urlLoader").style.display = "block";
 
-            // الرابط يخرج قصير جداً وثابت لأنه لا يحتوي على الكلمات!
-            let shortShareLink = `${window.location.origin}${window.location.pathname}?quiz=custom`;
+            let shortData = compressData(customQuestionsList);
+            let longShareLink = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(creatorName)}&d=${shortData}`;
             
-            // وضع الكلمات داخل باقة مشفرة مستقلة ينسخها الصانع ويرسلها
-            let packageData = { name: creatorName, questions: customQuestionsList };
-            globalShortCode = compressData(packageData);
-
-            document.getElementById("linkDisplay").innerText = shortShareLink;
-            document.getElementById("codeDisplay").innerText = globalShortCode;
+            // استخدام سيرفر تقصير الروابط المفتوح والمضمون ديريكت بدون حظر TinyURL
+            let apiUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longShareLink)}`;
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (response.ok) return response.text();
+                    throw new Error('Network error');
+                })
+                .then(shortUrl => {
+                    document.getElementById("urlLoader").style.display = "none";
+                    document.getElementById("linkDisplay").innerText = shortUrl;
+                    let copyBtn = document.getElementById("copyBtn");
+                    copyBtn.innerText = "نسخ رابط التحدي القصير الحين 📋";
+                    copyBtn.disabled = false;
+                })
+                .catch(err => {
+                    // في حال وقوع أي طارئ نادر، يتم عرض الرابط المباشر
+                    document.getElementById("urlLoader").style.display = "none";
+                    document.getElementById("linkDisplay").innerText = longShareLink;
+                    document.getElementById("copyBtn").innerText = "نسخ الرابط المباشر 📋";
+                    document.getElementById("copyBtn").disabled = false;
+                });
         }
 
         function showFriendQuestion() {
@@ -345,13 +348,7 @@
         function copyLink() {
             let linkText = document.getElementById("linkDisplay").innerText;
             navigator.clipboard.writeText(linkText).then(() => {
-                alert("📋 تم نسخ الرابط القصير بنجاح!");
-            });
-        }
-
-        function copyCode() {
-            navigator.clipboard.writeText(globalShortCode).then(() => {
-                alert("🔑 تم نسخ شفرة الأسئلة المرافقة بنجاح! أرسلها الآن مع الرابط لصاحبك في ماسنجر.");
+                alert("📋 تم نسخ الرابط القصير جداً بنجاح! شاركه الحين مباشرة مع أصحابك في ماسنجر.");
             });
         }
     </script>
