@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي معرفة الأصدقاء 🤝</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a8a5ff;
+            --bg: #0f1123;
+            --card: #151833;
+            --text: #ffffff;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+        }
+        body {
+            margin: 0; padding: 0;
+            background: radial-gradient(circle at center, #1e224b 0%, var(--bg) 100%);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; overflow-x: hidden;
+        }
+        .container {
+            width: 90%; max-width: 550px;
+            background: var(--card);
+            border-radius: 24px; padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center; box-sizing: border-box;
+        }
+        h1 {
+            font-size: 28px; margin-top: 0;
+            background: linear-gradient(45deg, #00cea8, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .screen { display: none; animation: slideIn 0.4s ease-out forwards; }
+        .screen.active { display: block; }
+        
+        input[type="text"] {
+            width: 100%; padding: 15px; margin: 15px 0;
+            border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2); color: #fff; font-size: 16px;
+            box-sizing: border-box; text-align: center;
+        }
+        input[type="text"]:focus { border-color: var(--primary); outline: none; }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), #8675a9);
+            color: white; border: none; padding: 14px 28px;
+            font-size: 16px; font-weight: bold; border-radius: 12px;
+            cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108,92,231,0.4); }
+        
+        .options-grid {
+            display: grid; grid-template-columns: 1fr; gap: 12px; margin: 20px 0;
+        }
+        .option-btn {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,255,255,0.08);
+            padding: 15px; border-radius: 14px; color: #fff;
+            font-size: 16px; cursor: pointer; text-align: right;
+            transition: all 0.2s; display: flex; align-items: center;
+        }
+        .option-btn:hover { background: rgba(108,92,231,0.1); border-color: var(--primary); }
+        
+        .progress-bar {
+            height: 6px; width: 100%; background: rgba(255,255,255,0.1);
+            border-radius: 10px; margin-bottom: 20px; overflow: hidden;
+        }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        
+        .share-box {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;
+            margin: 20px 0; word-break: break-all; border: 1px dashed var(--primary);
+            font-size: 14px; color: var(--secondary);
+        }
+        
+        .score-badge {
+            font-size: 48px; font-weight: bold; margin: 20px 0;
+            color: var(--warning); text-shadow: 0 0 20px rgba(253,203,110,0.3);
+        }
+        .result-text { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="startScreen" class="screen active">
+            <h1 id="mainTitle">🤔 تحدي معرفة الأصدقاء!</h1>
+            <p id="mainDesc">اكتشف من يفهمك ويحفظ ذكرياتك وصوالحك من بين كل أصدقائك!</p>
+            <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا...">
+            <button class="btn" onclick="startQuiz()">ابدأ وصمّم تحديك الخاص 🚀</button>
+        </div>
+
+        <div id="quizScreen" class="screen">
+            <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+            <h3 id="questionNumber" style="color: var(--secondary); margin: 0;">السؤال 1 من 10</h3>
+            <h2 id="questionText">جاري تحميل السؤال...</h2>
+            <div id="optionsContainer" class="options-grid"></div>
+        </div>
+
+        <div id="shareScreen" class="screen">
+            <h1>🎉 تم إنشاء تحديك بنجاح!</h1>
+            <p>الآن، انسخ هذا الرابط وأرسله لأصدقائك في المجموعات أو عبر الخاص وشاهد من يعرفك أفضل!</p>
+            <div class="share-box" id="linkDisplay">جاري توليد الرابط...</div>
+            <button class="btn" onclick="copyLink()">نسخ رابط التحدي 📋</button>
+        </div>
+
+        <div id="resultScreen" class="screen">
+            <h1>📊 نتيجة التحدي!</h1>
+            <p id="resultWelcome"></p>
+            <div class="score-badge" id="scoreDisplay">0 / 10</div>
+            <div class="result-text" id="resultStatus">تحليل النتيجة...</div>
+            <button class="btn" onclick="window.location.href = window.location.pathname">اصنع تحدي خاص بك أنت أيضاً 💫</button>
+        </div>
+    </div>
+
+    <script>
+        // الـ 10 أسئلة الثابتة والممتعة عن صوالح الشخص وذكرياته
+        const questions = [
+            { q: "ما هو الشيء المفضل الذي أقضي فيه وقت فراغي؟", o: ["مشاهدة الأنمي والمانجا", "لعب ألعاب الفيديو الكلاسيكية", "برمجة وتطوير سيتات الويب", "متابعة مباريات كرة القدم"] },
+            { q: "ما هو مشروبي السحري الذي لا أستغني عنه؟", o: ["قهوة ساخنة ثقيلة ☕", "شاي منعنع 🍃", "عصير بارد", "مشروب طاقة لزيادة التركيز"] },
+            { q: "لو ربحت رحلة مجانية، أين سأختار الذهاب؟", o: ["اليابان (بلد الأنمي والتكنولوجيا)", "ملعب كرة قدم عالمي لمباراة قوية", "شاطئ هادئ للاسترخاء والتأمل", "رحلة تخييم وسط الطبيعة الجبلية"] },
+            { q: "ما هي صفتي البارزة التي يعرفني بها الجميع؟", o: ["التفكير العميق والتحليل", "المرح والضحك والتمسخير", "الهدوء والغموض التام", "العمل الدؤوب والاهتمام بالتفاصيل"] },
+            { q: "عندما أواجه مشكلة برمجية أو معقدة في صوالحي، ماذا أفعل؟", o: ["أبقى أحاول دون استسلام لساعات", "أطلب المساعدة فوراً من صديق محترف", "آخذ استراحة قهوة ثم أعود بذكاء", "أعصب وأغلق الكمبيوتر لبعض الوقت"] },
+            { q: "أي نوع من الأجواء أفضل دائماً؟", o: ["الليل والهدوء التام والتركيز", "النهار والنشاط والحركة", "أجواء الشتاء والمطر خلف النافذة", "أجواء الصيف الحارة والخرجات"] },
+            { q: "ما هو أسلوبي المفضّل في النقاشات والحديث؟", o: ["الواقعية والصراحة التامة والدعم المباشر", "إدخال المزاح والضحك لتلطيف الجو", "الاستماع أكثر من الكلام", "التحليل الفلسفي والنظري للأمور"] },
+            { q: "ما الذي يزعجني ويقلقني أكثر من غيره؟", o: ["الغيابات والوعود غير الموفاة", "تضييع الوقت في صوالح تافهة", "الامتحانات والضغط المفاجئ", "عدم اشتغال الكود بعد تعب طويل!"] },
+            { q: "إذا قررت شراء تيشيرت جديد، فما هو الستايل المرجح؟", o: ["ستايل أسود هادئ وغامض", "تيشيرت عليه شعار أنمي أو كرتون مفضل", "ستايل رياضي مريح وخفيف", "كلاسيكي أنيق وبسيط"] },
+            { q: "ما هو هدفي الأكبر الذي أطمح لتحقيقه حالياً؟", o: ["النجاح الأكاديمي الباهر والتخرج", "بناء مشاريع برمجية وألعاب ناجحة", "تطوير ذاتي وفهم نفسي بشكل أعمق", "السفر واكتشاف أماكن جديدة"] }
+        ];
+
+        let currentQuestionIndex = 0;
+        let creatorAnswers = [];
+        let friendAnswers = [];
+        let creatorName = "";
+        let isFriendMode = false;
+        let targetAnswers = [];
+
+        // الفحص الأولي: هل الرابط يحتوي على إجابات جاهزة (وضع الصديق) أم هو فارغ (وضع الصانع)؟
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('name') && urlParams.has('answers')) {
+            isFriendMode = true;
+            creatorName = urlParams.get('name');
+            targetAnswers = urlParams.get('answers').split('');
+            
+            // تعديل واجهة وضع الصديق
+            document.getElementById("mainTitle").innerText = `تحدي الصديق: ${creatorName}`;
+            document.getElementById("mainDesc").innerText = `أنت الآن في تحدي لمعرفة مدى عمق صداقتك مع [ ${creatorName} ]. أجب على الأسئلة واكتشف قيمتك عنده!`;
+            document.getElementById("usernameInput").placeholder = "اكتب اسمك أنت أولاً...";
+        }
+
+        function startQuiz() {
+            let nameInput = document.getElementById("usernameInput").value.trim();
+            if (!nameInput) {
+                alert("من فضلك اكتب الاسم أولاً للمواصلة!");
+                return;
+            }
+            
+            if(!isFriendMode) {
+                creatorName = nameInput;
+            }
+            
+            document.getElementById("startScreen").classList.remove("active");
+            document.getElementById("quizScreen").classList.add("active");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            let qData = questions[currentQuestionIndex];
+            document.getElementById("questionNumber").innerText = `السؤال ${currentQuestionIndex + 1} من 10`;
+            document.getElementById("questionText").innerText = isFriendMode ? `ما هي إجابة ${creatorName} لـ: ${qData.q}` : qData.q;
+            
+            // حساب وتحديث شريط التقدم
+            let progress = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById("progressFill").style.width = `${progress}%`;
+
+            let container = document.getElementById("optionsContainer");
+            container.innerHTML = "";
+
+            // عرض الخيارات الأربعة
+            qData.o.forEach((option, index) => {
+                let btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerText = `${index + 1}. ${option}`;
+                btn.onclick = () => handleAnswer(index);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            if (!isFriendMode) {
+                // حفظ إجابات منشئ التحدي
+                creatorAnswers.push(selectedIndex);
+            } else {
+                // حفظ إجابات الصديق ومقارنتها فوراً
+                friendAnswers.push(selectedIndex);
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            document.getElementById("quizScreen").classList.remove("active");
+
+            if (!isFriendMode) {
+                // وضع الصانع: توليد الرابط الفريد
+                document.getElementById("shareScreen").classList.add("active");
+                let encryptedAnswers = creatorAnswers.join('');
+                let shareLink = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(creatorName)}&answers=${encryptedAnswers}`;
+                document.getElementById("linkDisplay").innerText = shareLink;
+            } else {
+                // وضع الصديق: حساب النتيجة والتقييم بدقة
+                document.getElementById("resultScreen").classList.add("active");
+                let score = 0;
+                for(let i=0; i<questions.length; i++) {
+                    if(parseInt(targetAnswers[i]) === friendAnswers[i]) {
+                        score++;
+                    }
+                }
+
+                document.getElementById("resultWelcome").innerText = `لقد أنهيت التحدي الخاص بـ ${creatorName}!`;
+                document.getElementById("scoreDisplay").innerText = `${score} / 10`;
+
+                let statusText = "";
+                let statusColor = "";
+                
+                // درجات المعرفة المطلوبة بدقة وفلسفة كرتونية هادئة
+                if (score < 5) {
+                    statusText = "❌ لا تعرفه جيداً! تحتاج لمجالسته أكثر وتجاوز الرسميات.";
+                    statusColor = "var(--danger)";
+                } else if (score >= 5 && score < 10) {
+                    statusText = "✨ معرفة سطحية! بينكما ذكريات جيدة ولكن الصداقة العميقة تحتاج كافيين ووقت أطول.";
+                    statusColor = "var(--warning)";
+                } else if (score === 10) {
+                    statusText = "👑 أصدقاء الروح! تطابق مثالي يعكس تزامناً فكرياً وروحياً نادراً جداً!";
+                    statusColor = "var(--success)";
+                }
+
+                let statusDiv = document.getElementById("resultStatus");
+                statusDiv.innerText = statusText;
+                statusDiv.style.color = statusColor;
+            }
+        }
+
+        function copyLink() {
+            let linkText = document.getElementById("linkDisplay").innerText;
+            navigator.clipboard.writeText(linkText).then(() => {
+                alert("📋 تم نسخ الرابط بنجاح! شاركه الآن مع أصدقائك في المجموعات.");
+            }).catch(err => {
+                alert("حدث خطأ أثناء النسخ، يمكنك نسخه يدوياً.");
+            });
+        }
+    </script>
+</body>
+</html>
