@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحدي اختبار الأصدقاء المخصص 🤝</title>
+    <title>تحدي اختبار الأصدقاء المخصص القصير 🤝</title>
     <style>
         :root {
             --primary: #6c5ce7;
@@ -78,7 +78,7 @@
         .share-box {
             background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;
             margin: 20px 0; word-break: break-all; border: 1px dashed var(--primary);
-            font-size: 14px; color: var(--secondary); direction: ltr; text-align: center;
+            font-size: 16px; color: #00cea8; direction: ltr; text-align: center;
             font-weight: bold;
         }
         
@@ -89,14 +89,20 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1); border-radius: 50%;
+            border-top: 4px solid var(--primary); width: 30px; height: 30px;
+            animation: spin 1s linear infinite; margin: 15px auto; display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="startScreen" class="screen active">
-            <h1 id="mainTitle">🤔 تحدي اختبار الأصدقاء المخصص!</h1>
-            <p id="mainDesc">اكتب أسئلتك وصوالحك بنفسك واكتشف من من أصدقائك يستطيع الإجابة عليها بدقة! (يمكنك كتابة حتى 15 سؤالاً برابط قصير جداً)</p>
+            <h1>🤔 تحدي اختبار الأصدقاء المخصص!</h1>
+            <p id="mainDesc">اكتب أسئلتك وصوالحك بنفسك واكتشف من من أصدقائك يستطيع الإجابة عليها بدقة! (الرابط يخرج قصير جداً تلقائياً)</p>
             <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا...">
             <button class="btn" onclick="startSetup()">ابدأ كتابة أسئلتك الخاصة 🚀</button>
         </div>
@@ -104,11 +110,11 @@
         <div id="creatorScreen" class="screen">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="color: var(--secondary); margin: 0;" id="creatorTitle">السؤال رقم 1</h3>
-                <span id="creatorCount" style="background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 12px;">0 / 15</span>
+                <span id="creatorCount" style="background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 12px;">0 / 10</span>
             </div>
             <p style="font-size: 13px; color: #8a8da4; margin: 5px 0 15px 0;">اكتب السؤال والخيارات، وحدد الدائرة أمام الجواب الصحيح الحقيقي عنك!</p>
             
-            <input type="text" id="customQuestion" placeholder="مثال: ما هو الأنمي المفضل لدي؟">
+            <input type="text" id="customQuestion" placeholder="مثال: ما هو الشيء المفضل عندي؟">
             
             <div style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 14px; color: var(--secondary);">الخيارات المتعددة:</div>
             <div class="creator-option-row">
@@ -129,7 +135,7 @@
             </div>
 
             <button class="btn" onclick="saveCustomQuestion()">حفظ والانتقال للسؤال التالي ➡️</button>
-            <button class="btn btn-secondary" onclick="finishCreating()">إنهاء وصنع الرابط القصير الآن 🏁</button>
+            <button class="btn btn-secondary" onclick="finishCreating()">إنهاء وصنع الرابط القصير 🏁</button>
         </div>
 
         <div id="quizScreen" class="screen">
@@ -141,9 +147,10 @@
 
         <div id="shareScreen" class="screen">
             <h1>🎉 تم إنشاء تحديك المخصص بنجاح!</h1>
-            <p>تم ضغط البيانات بنجاح لإنتاج رابط قصير ونظيف. انسخه الآن وأرسله لأصحابك:</p>
-            <div class="share-box" id="linkDisplay">جاري توليد الرابط...</div>
-            <button class="btn" onclick="copyLink()">نسخ رابط التحدي القصير 📋</button>
+            <p>تم تقصير الرابط آلياً عبر السيرفر ليصبح خفيفاً ومثالياً للمشاركة في ماسنجر وفيسبوك:</p>
+            <div class="loader" id="urlLoader"></div>
+            <div class="share-box" id="linkDisplay">جاري تقصير الرابط عبر السيرفر آلياً...</div>
+            <button class="btn" id="copyBtn" onclick="copyLink()" disabled>انتظر تحميل الرابط... 📋</button>
         </div>
 
         <div id="resultScreen" class="screen">
@@ -162,7 +169,6 @@
         let creatorName = "";
         let isFriendMode = false;
 
-        // دالة الضغط والتقصير المتقدمة لتقليص حجم الـ URL
         function compressData(obj) {
             let str = JSON.stringify(obj);
             return btoa(encodeURIComponent(str)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
@@ -182,7 +188,7 @@
                 customQuestionsList = decompressData(urlParams.get('d'));
 
                 document.getElementById("mainTitle").innerText = `تحدي الصديق: ${creatorName}`;
-                document.getElementById("mainDesc").innerText = `أنت الآن في اختبار مخصص كتبه [ ${creatorName} ] بنفسه عن صوالحه وذكرياته. أجب واكتشف رتبتك!`;
+                document.getElementById("mainDesc").innerText = `أنت الآن في اختبار مخصص كتبه [ ${creatorName} ] بنفسه عن صوالحه. أجب واكتشف رتبتك!`;
                 document.getElementById("usernameInput").placeholder = "اكتب اسمك أنت أولاً...";
             } catch (e) {
                 alert("حدث خطأ في قراءة الرابط، تأكد من نسخه كاملاً!");
@@ -210,7 +216,7 @@
 
         function updateCreatorUI() {
             document.getElementById("creatorTitle").innerText = `صناعة السؤال رقم (${customQuestionsList.length + 1})`;
-            document.getElementById("creatorCount").innerText = `${customQuestionsList.length} / 15`;
+            document.getElementById("creatorCount").innerText = `${customQuestionsList.length} / 10`;
             document.getElementById("customQuestion").value = "";
             document.getElementById("opt0").value = "";
             document.getElementById("opt1").value = "";
@@ -232,18 +238,12 @@
                 return;
             }
 
-            customQuestionsList.push({
-                q: qText,
-                o: [o0, o1, o2, o3],
-                a: correct
-            });
+            customQuestionsList.push({ q: qText, o: [o0, o1, o2, o3], a: correct });
 
-            if (customQuestionsList.length >= 15) { 
-                alert("ممتاز جداً! لقد قمت بصناعة 15 سؤالاً كاملاً وهو الحد الأقصى المثالي.");
+            if (customQuestionsList.length >= 10) { 
+                alert("ممتاز جداً! لقد قمت بصناعة 10 أسئلة مخصصة كاملة.");
                 finishCreating();
-            } else {
-                updateCreatorUI();
-            }
+            } else { updateCreatorUI(); }
         }
 
         function finishCreating() {
@@ -254,11 +254,36 @@
 
             document.getElementById("creatorScreen").classList.remove("active");
             document.getElementById("shareScreen").classList.add("active");
+            document.getElementById("urlLoader").style.display = "block";
 
-            // توليد الرابط القصير الذكي
             let shortData = compressData(customQuestionsList);
-            let shareLink = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(creatorName)}&d=${shortData}`;
-            document.getElementById("linkDisplay").innerText = shareLink;
+            let longShareLink = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(creatorName)}&d=${shortData}`;
+            
+            // الاتصال بسيرفر التقصير الآلي الفوري الحر (is.gd API) دون الخروج من الصفحة
+            let apiUrl = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longShareLink)}`;
+            
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("urlLoader").style.display = "none";
+                    if(data.shorturl) {
+                        document.getElementById("linkDisplay").innerText = data.shorturl;
+                        let copyBtn = document.getElementById("copyBtn");
+                        copyBtn.innerText = "نسخ رابط التحدي القصير الحين 📋";
+                        copyBtn.disabled = false;
+                    } else {
+                        // في حال تعطل السيرفر المفاجئ، نعرض الرابط المضغوط كإجراء احتياطي سليم
+                        document.getElementById("linkDisplay").innerText = longShareLink;
+                        document.getElementById("copyBtn").innerText = "نسخ الرابط الاحتياطي 📋";
+                        document.getElementById("copyBtn").disabled = false;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById("urlLoader").style.display = "none";
+                    document.getElementById("linkDisplay").innerText = longShareLink;
+                    document.getElementById("copyBtn").innerText = "نسخ الرابط الاحتياطي 📋";
+                    document.getElementById("copyBtn").disabled = false;
+                });
         }
 
         function showFriendQuestion() {
@@ -287,11 +312,8 @@
             friendAnswers.push(selectedIndex);
             currentQuestionIndex++;
 
-            if (currentQuestionIndex < customQuestionsList.length) {
-                showFriendQuestion();
-            } else {
-                showFinalResults();
-            }
+            if (currentQuestionIndex < customQuestionsList.length) { showFriendQuestion(); } 
+            else { showFinalResults(); }
         }
 
         function showFinalResults() {
@@ -309,8 +331,7 @@
             document.getElementById("scoreDisplay").innerText = `${score} / ${totalQ}`;
 
             let percentage = (score / totalQ) * 10; 
-            let statusText = "";
-            let statusColor = "";
+            let statusText = ""; let statusColor = "";
 
             if (percentage < 5) {
                 statusText = "❌ لا تعرفه جيداً! تحتاج لمجالسته وتجاوز الرسميات والتعرف على صوالحه.";
@@ -324,16 +345,13 @@
             }
 
             let statusDiv = document.getElementById("resultStatus");
-            statusDiv.innerText = statusText;
-            statusDiv.style.color = statusColor;
+            statusDiv.innerText = statusText; statusDiv.style.color = statusColor;
         }
 
         function copyLink() {
             let linkText = document.getElementById("linkDisplay").innerText;
             navigator.clipboard.writeText(linkText).then(() => {
-                alert("📋 تم نسخ الرابط المخصص القصير بنجاح! شاركه الآن مع أصدقائك.");
-            }).catch(err => {
-                alert("حدث خطأ أثناء النسخ، يمكنك تحديده ونسخه يدوياً.");
+                alert("📋 تم نسخ الرابط القصير جداً بنجاح! شاركه الحين مباشرة مع أصحابك في ماسنجر.");
             });
         }
     </script>
