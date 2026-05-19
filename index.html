@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحدي اختبار الأصدقاء المطور 🤝</title>
+    <title>تحدي اختبار الأصدقاء المخصص 🤝</title>
     <style>
         :root {
             --primary: #6c5ce7;
@@ -24,7 +24,7 @@
             min-height: 100vh; overflow-x: hidden;
         }
         .container {
-            width: 95%; max-width: 600px;
+            width: 95%; max-width: 550px;
             background: var(--card);
             border-radius: 24px; padding: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
@@ -66,12 +66,8 @@
         }
         .option-btn:hover { background: rgba(108,92,231,0.1); border-color: var(--primary); }
         
-        .creator-option-row {
-            display: flex; align-items: center; gap: 10px; margin: 5px 0;
-        }
-        .radio-custom {
-            cursor: pointer; width: 22px; height: 22px; accent-color: var(--success);
-        }
+        .creator-option-row { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+        .radio-custom { cursor: pointer; width: 22px; height: 22px; accent-color: var(--success); }
         
         .progress-bar {
             height: 6px; width: 100%; background: rgba(255,255,255,0.1);
@@ -82,7 +78,8 @@
         .share-box {
             background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;
             margin: 20px 0; word-break: break-all; border: 1px dashed var(--primary);
-            font-size: 13px; color: var(--secondary); direction: ltr; text-align: left;
+            font-size: 14px; color: var(--secondary); direction: ltr; text-align: center;
+            font-weight: bold;
         }
         
         .score-badge { font-size: 48px; font-weight: bold; margin: 20px 0; color: var(--warning); }
@@ -99,16 +96,19 @@
     <div class="container">
         <div id="startScreen" class="screen active">
             <h1 id="mainTitle">🤔 تحدي اختبار الأصدقاء المخصص!</h1>
-            <p id="mainDesc">اكتب أسئلتك وصوالحك بنفسك واكتشف من من أصدقائك يستطيع الإجابة عليها بدقة!</p>
+            <p id="mainDesc">اكتب أسئلتك وصوالحك بنفسك واكتشف من من أصدقائك يستطيع الإجابة عليها بدقة! (يمكنك كتابة حتى 15 سؤالاً برابط قصير جداً)</p>
             <input type="text" id="usernameInput" placeholder="اكتب اسمك هنا...">
             <button class="btn" onclick="startSetup()">ابدأ كتابة أسئلتك الخاصة 🚀</button>
         </div>
 
         <div id="creatorScreen" class="screen">
-            <h3 style="color: var(--secondary); margin: 0;" id="creatorTitle">السؤال رقم 1</h3>
-            <p style="font-size: 13px; color: #8a8da4; margin: 5px 0 15px 0;">اكتب السؤال، ثم الـ 4 خيارات، وحدد الدائرة الخضراء أمام الخيار الصحيح الحقيقي عنك!</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color: var(--secondary); margin: 0;" id="creatorTitle">السؤال رقم 1</h3>
+                <span id="creatorCount" style="background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 12px;">0 / 15</span>
+            </div>
+            <p style="font-size: 13px; color: #8a8da4; margin: 5px 0 15px 0;">اكتب السؤال والخيارات، وحدد الدائرة أمام الجواب الصحيح الحقيقي عنك!</p>
             
-            <input type="text" id="customQuestion" placeholder="مثال: ما هي أكلتي المفضلة المعتمدة؟">
+            <input type="text" id="customQuestion" placeholder="مثال: ما هو الأنمي المفضل لدي؟">
             
             <div style="text-align: right; margin-top: 15px; font-weight: bold; font-size: 14px; color: var(--secondary);">الخيارات المتعددة:</div>
             <div class="creator-option-row">
@@ -129,7 +129,7 @@
             </div>
 
             <button class="btn" onclick="saveCustomQuestion()">حفظ والانتقال للسؤال التالي ➡️</button>
-            <button class="btn btn-secondary" onclick="finishCreating()">إنهاء وصنع الرابط الآن 🏁</button>
+            <button class="btn btn-secondary" onclick="finishCreating()">إنهاء وصنع الرابط القصير الآن 🏁</button>
         </div>
 
         <div id="quizScreen" class="screen">
@@ -141,9 +141,9 @@
 
         <div id="shareScreen" class="screen">
             <h1>🎉 تم إنشاء تحديك المخصص بنجاح!</h1>
-            <p>انسخ هذا الرابط الفريد الذي يحتوي على أسئلتك المخصصة وأرسله لأصدقائك المقربين لمعرفة النتيجة:</p>
+            <p>تم ضغط البيانات بنجاح لإنتاج رابط قصير ونظيف. انسخه الآن وأرسله لأصحابك:</p>
             <div class="share-box" id="linkDisplay">جاري توليد الرابط...</div>
-            <button class="btn" onclick="copyLink()">نسخ رابط التحدي 📋</button>
+            <button class="btn" onclick="copyLink()">نسخ رابط التحدي القصير 📋</button>
         </div>
 
         <div id="resultScreen" class="screen">
@@ -162,21 +162,30 @@
         let creatorName = "";
         let isFriendMode = false;
 
-        // قراءة ومعالجة البيانات المشفرة من الرابط (URL)
+        // دالة الضغط والتقصير المتقدمة لتقليص حجم الـ URL
+        function compressData(obj) {
+            let str = JSON.stringify(obj);
+            return btoa(encodeURIComponent(str)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+        }
+
+        function decompressData(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            return JSON.parse(decodeURIComponent(atob(str)));
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('name') && urlParams.has('data')) {
+        if (urlParams.has('name') && urlParams.has('d')) {
             try {
                 isFriendMode = true;
                 creatorName = urlParams.get('name');
-                // فك التشفير Base64 لاسترجاع الأسئلة المخصصة كاملة
-                let decodedData = decodeURIComponent(atob(urlParams.get('data')));
-                customQuestionsList = JSON.parse(decodedData);
+                customQuestionsList = decompressData(urlParams.get('d'));
 
                 document.getElementById("mainTitle").innerText = `تحدي الصديق: ${creatorName}`;
                 document.getElementById("mainDesc").innerText = `أنت الآن في اختبار مخصص كتبه [ ${creatorName} ] بنفسه عن صوالحه وذكرياته. أجب واكتشف رتبتك!`;
                 document.getElementById("usernameInput").placeholder = "اكتب اسمك أنت أولاً...";
             } catch (e) {
-                alert("حدث خطأ في قراءة رابط التحدي، تأكد من نسخ الرابط كاملاً!");
+                alert("حدث خطأ في قراءة الرابط، تأكد من نسخه كاملاً!");
                 window.location.href = window.location.pathname;
             }
         }
@@ -199,9 +208,9 @@
             }
         }
 
-        // لوحة التحكم وتحديث المدخلات عند بناء الأسئلة
         function updateCreatorUI() {
             document.getElementById("creatorTitle").innerText = `صناعة السؤال رقم (${customQuestionsList.length + 1})`;
+            document.getElementById("creatorCount").innerText = `${customQuestionsList.length} / 15`;
             document.getElementById("customQuestion").value = "";
             document.getElementById("opt0").value = "";
             document.getElementById("opt1").value = "";
@@ -219,19 +228,18 @@
             let correct = parseInt(document.querySelector('input[name="correctOpt"]:checked').value);
 
             if (!qText || !o0 || !o1 || !o2 || !o3) {
-                alert("تنبيه: يجب ملء السؤال وجميع الخيارات الأربعة معاً!");
+                alert("تنبيه: يجب ملء السؤال وجميع الخيارات الأربعة!");
                 return;
             }
 
-            // إضافة السؤال المخصص للمصفوفة
             customQuestionsList.push({
                 q: qText,
                 o: [o0, o1, o2, o3],
                 a: correct
             });
 
-            if (customQuestionsList.length >= 10) {
-                alert("ممتاز! لقد قمت بصناعة 10 أسئلة كاملة وهو الحد المثالي كلياً.");
+            if (customQuestionsList.length >= 15) { 
+                alert("ممتاز جداً! لقد قمت بصناعة 15 سؤالاً كاملاً وهو الحد الأقصى المثالي.");
                 finishCreating();
             } else {
                 updateCreatorUI();
@@ -240,22 +248,19 @@
 
         function finishCreating() {
             if (customQuestionsList.length === 0) {
-                alert("يجب عليك كتابة وحفظ سؤال واحد على الأقل!");
+                alert("يجب عليك كتابة سؤال واحد على الأقل!");
                 return;
             }
 
             document.getElementById("creatorScreen").classList.remove("active");
             document.getElementById("shareScreen").classList.add("active");
 
-            // تشفير مصفوفة الأسئلة والخيارات كاملة إلى نص آمن للروابط عبر Base64
-            let jsonStr = JSON.stringify(customQuestionsList);
-            let b64Str = btoa(encodeURIComponent(jsonStr));
-            
-            let shareLink = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(creatorName)}&data=${b64Str}`;
+            // توليد الرابط القصير الذكي
+            let shortData = compressData(customQuestionsList);
+            let shareLink = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(creatorName)}&d=${shortData}`;
             document.getElementById("linkDisplay").innerText = shareLink;
         }
 
-        // وضع الصديق: عرض الأسئلة المخصصة المرفقة بالرابط
         function showFriendQuestion() {
             let qData = customQuestionsList[currentQuestionIndex];
             let totalQ = customQuestionsList.length;
@@ -297,15 +302,12 @@
             let totalQ = customQuestionsList.length;
 
             customQuestionsList.forEach((qData, index) => {
-                if (qData.a === friendAnswers[index]) {
-                    score++;
-                }
+                if (qData.a === friendAnswers[index]) score++;
             });
 
-            document.getElementById("resultWelcome").innerText = `لقد أنهيت التحدي المخصص الذي صنعه ${creatorName}!`;
+            document.getElementById("resultWelcome").innerText = `لقد أنهيت تحدي الأسئلة المخصص الذي صنعه ${creatorName}!`;
             document.getElementById("scoreDisplay").innerText = `${score} / ${totalQ}`;
 
-            // حساب النسبة المئوية للمطابقة لتقديم التقييم المطلوب بدقة
             let percentage = (score / totalQ) * 10; 
             let statusText = "";
             let statusColor = "";
@@ -313,11 +315,11 @@
             if (percentage < 5) {
                 statusText = "❌ لا تعرفه جيداً! تحتاج لمجالسته وتجاوز الرسميات والتعرف على صوالحه.";
                 statusColor = "var(--danger)";
-            } else if (percentage >= 5 && percentage < 10) {
-                statusText = "✨ معرفة سطحية! بينكما صوالح مشتركة وذكريات جيدة ولكن الصداقة العميقة تحتاج وقتاً أطول.";
+            } else if (percentage >= 5 && percentage < 9) {
+                statusText = "✨ معرفة سطحية! بينكما صوالح مشتركة وذكريات جيدة.";
                 statusColor = "var(--warning)";
-            } else if (percentage === 10) {
-                statusText = "👑 أصدقاء الروح! تطابق مثالي يعكس تزامناً فكرياً ومعرفة دقيقة بكل تفاصيله وصوالحه!";
+            } else if (percentage >= 9) {
+                statusText = "👑 أصدقاء الروح! تطابق ممتاز يعكس معرفة دقيقة بكل تفاصيله وصوالحه!";
                 statusColor = "var(--success)";
             }
 
@@ -329,7 +331,7 @@
         function copyLink() {
             let linkText = document.getElementById("linkDisplay").innerText;
             navigator.clipboard.writeText(linkText).then(() => {
-                alert("📋 تم نسخ الرابط المخصص بنجاح! ارفعه الآن على مستودع GitHub المحدث ليرسل لأصدقائك.");
+                alert("📋 تم نسخ الرابط المخصص القصير بنجاح! شاركه الآن مع أصدقائك.");
             }).catch(err => {
                 alert("حدث خطأ أثناء النسخ، يمكنك تحديده ونسخه يدوياً.");
             });
